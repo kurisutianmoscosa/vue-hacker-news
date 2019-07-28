@@ -15,6 +15,8 @@ import NewsItem from '../components/NewsItem.vue';
 
 const BASE_URL = 'https://api.hackernews.io';
 
+// test
+
 export default {
   components: {
     NewsItem,
