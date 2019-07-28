@@ -1,18 +1,48 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+     <div v-if="loading">
+       <h3>Loading...</h3>
+     </div>
+     <div>
+       <news-item v-for="item in items" :key="item.id" :item="item" />
+     </div>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue';
+import { value, onCreated } from 'vue-function-api';
+import NewsItem from '../components/NewsItem.vue';
+
+const BASE_URL = 'https://api.hackernews.io';
 
 export default {
-  name: 'home',
   components: {
-    HelloWorld,
+    NewsItem,
+  },
+
+  setup() {
+    const items = value(new Array([]));
+    const loading = value(true);
+
+    onCreated(async () => {
+      const response = await fetch(`${BASE_URL}/news?page=1`);
+      const json = await response.json();
+
+      items.value = json;
+      loading.value = false;
+    });
+
+    return {
+      items,
+      loading,
+    };
   },
 };
+
 </script>
+
+<style>
+.home {
+   background-color: #f6f6ef;
+}
+</style>
