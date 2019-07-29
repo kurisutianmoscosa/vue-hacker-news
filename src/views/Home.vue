@@ -4,18 +4,20 @@
        <h3>Loading...</h3>
      </div>
      <div>
-       <news-item v-for="item in items" :key="item.id" :item="item" />
+       <news-item v-for="item in newsItems" :key="item.id" :item="item" />
+     </div>
+     <div>
+       <p class="More" @click="loadMore">More</p>
      </div>
   </div>
 </template>
 
 <script>
 import { value, onCreated } from 'vue-function-api';
+import { useState, useActions } from '@u3u/vue-hooks';
+
+import types from '../types';
 import NewsItem from '../components/NewsItem.vue';
-
-const BASE_URL = 'https://api.hackernews.io';
-
-// test
 
 export default {
   components: {
@@ -23,20 +25,29 @@ export default {
   },
 
   setup() {
-    const items = value(new Array([]));
-    const loading = value(true);
+    const { loading, newsItems } = useState(['loading', 'newsItems']);
+    const { GET_NEWS_ITEMS } = useActions([types.GET_NEWS_ITEMS]);
+    const currentPage = value(1);
 
-    onCreated(async () => {
-      const response = await fetch(`${BASE_URL}/news?page=1`);
-      const json = await response.json();
-
-      items.value = json;
-      loading.value = false;
+    onCreated(() => {
+      GET_NEWS_ITEMS({
+        type: 'news',
+        page: currentPage.value,
+      });
     });
 
+    const loadMore = () => {
+      currentPage.value += 1;
+      GET_NEWS_ITEMS({
+        type: 'news',
+        page: currentPage.value,
+      });
+    };
+
     return {
-      items,
       loading,
+      newsItems,
+      loadMore,
     };
   },
 };
@@ -45,6 +56,13 @@ export default {
 
 <style>
 .home {
-   background-color: #f6f6ef;
+  counter-reset: news;
+  background-color: #f6f6ef;
+  padding: 1em;
 }
+
+.More {
+  color: #828282
+}
+
 </style>
